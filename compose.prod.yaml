@@ -1,0 +1,63 @@
+x-backend-prod: &backend-prod
+  image: kvgh-backend:release
+  build:
+    context: ${BACKEND_SOURCE_DIR:-./backend-fastapi}
+    dockerfile: Dockerfile
+    args:
+      APP_UID: ${APP_UID:-1000}
+      APP_GID: ${APP_GID:-1000}
+      BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
+      BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
+      BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
+  environment:
+    KVGH_APP_DEBUG: "0"
+  volumes:
+    - ./backend-fastapi/config/settings.compose.yaml:/app/config/settings.yaml:ro
+    - ${ANALYSIS_BASE_ROOT:-/opt/kvgh-rehabilitation-system}/physiotherapy_vghks:/opt/kvgh-rehabilitation-system/physiotherapy_vghks
+    - backend_temp:/data/tmp_videos
+
+services:
+  frontend:
+    image: kvgh-frontend:release
+    build:
+      context: ${FRONTEND_SOURCE_DIR:-./frontend-react}
+      dockerfile: Dockerfile
+      target: production
+      args:
+        APP_VERSION: ${FRONTEND_GIT_SHA}
+        APP_REF: ${FRONTEND_GIT_REF}
+        APP_BUILT_AT: ${FRONTEND_BUILD_AT}
+    restart: unless-stopped
+    environment:
+      FRONTEND_GIT_SHA: ${FRONTEND_GIT_SHA}
+      APP_REF: ${FRONTEND_GIT_REF}
+      APP_BUILT_AT: ${FRONTEND_BUILD_AT}
+    ports:
+      - "${FRONTEND_PORT:-2000}:80"
+
+  backend-api:
+    <<: *backend-prod
+
+  worker-video:
+    <<: *backend-prod
+
+  worker-script:
+    <<: *backend-prod
+
+  worker-annotation:
+    <<: *backend-prod
+
+  worker-metrics:
+    <<: *backend-prod
+    environment:
+      KVGH_APP_DEBUG: "0"
+      KVGH_NODE_NAME: ${KVGH_PROD_NODE_NAME:-docker-prod-node}
+      BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
+      BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
+      BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
+
+  worker-metrics-dispatch:
+    <<: *backend-prod
+
+  beat:
+    <<: *backend-prod

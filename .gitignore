@@ -1,0 +1,81 @@
+# ============================================================
+# Sub repositories
+# These are independent Git repositories and should not be tracked
+# by kvgh-rehabilitation-deploy.
+# ============================================================
+/backend-fastapi/
+/frontend-react/
+/physiotherapy_vghks/
+/deploy/*
+!/deploy/.gitkeep
+
+# ============================================================
+# Database dumps / backups
+# ============================================================
+*.dump
+*.backup
+*.bak
+*.sql.gz
+*.tar
+*.tar.gz
+*.zip
+
+# If you want to keep schema/init SQL, do not ignore all *.sql.
+# Ignore only sensitive or generated SQL files by path/name.
+ciot_db.dump
+db.dump
+backup.sql
+backup_*.sql
+*_backup.sql
+
+
+# ============================================================
+# Docker / runtime generated files
+# ============================================================
+/volumes/
+/data/
+/postgres-data/
+/rabbitmq-data/
+/uploads/
+/output/
+/tmp/
+/temp/
+
+
+# ============================================================
+# Logs
+# ============================================================
+*.log
+logs/
+log/
+
+
+# ============================================================
+# OS / editor files
+# ============================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+
+# ============================================================
+# Python cache, in case scripts are added later
+# ============================================================
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+
+# ============================================================
+# Node cache, in case frontend helper scripts are added later
+# ============================================================
+node_modules/
+dist/
+build/
+.npm/
+.yarn/
