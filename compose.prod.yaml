@@ -32,6 +32,10 @@ services:
       FRONTEND_GIT_SHA: ${FRONTEND_GIT_SHA}
       APP_REF: ${FRONTEND_GIT_REF}
       APP_BUILT_AT: ${FRONTEND_BUILD_AT}
+    # 冷啟動時先等 API ready，避免前端 Nginx 一啟動就代理到尚未健康的 backend。
+    depends_on:
+      backend-api:
+        condition: service_healthy
     ports:
       - "${FRONTEND_PORT:-2000}:80"
 
