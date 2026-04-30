@@ -1123,7 +1123,7 @@ COMMENT ON COLUMN public.users.user_account IS '登入帳號';
 -- Name: COLUMN users.user_password_hash; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN public.users.user_password_hash IS '密碼（使用 Django 後端內建格式儲存：pbkdf2_sha256 / argon2 / bcrypt）';
+COMMENT ON COLUMN public.users.user_password_hash IS '密碼 Argon2id PHC hash。';
 
 
 --

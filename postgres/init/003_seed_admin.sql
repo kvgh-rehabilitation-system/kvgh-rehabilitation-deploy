@@ -12,7 +12,7 @@ INSERT INTO public.users (
 VALUES (
     'admin01',
     'admin01',
-    'pbkdf2_sha256$390000$kvgh_init_admin$wElgtsqbqgSux+L2jvR68ML62dWdYobp3wwswI2ShzY=',
+    '$argon2id$v=19$m=65536,t=3,p=4$a3ZnaC1pbml0LWFkbWluMQ$m34tK1qSiaTxkJPQp53RsIZPMLqsTOfzwL2P9L7pU7g',
     '系統管理員',
     1,
     TRUE,
