@@ -65,7 +65,11 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test:
+        [
+          "CMD-SHELL",
+          "rabbitmq-diagnostics -q ping && rabbitmqctl -q authenticate_user \"$RABBITMQ_DEFAULT_USER\" \"$RABBITMQ_DEFAULT_PASS\" && rabbitmqctl -q list_vhosts | grep -Fx \"$RABBITMQ_DEFAULT_VHOST\"",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
