@@ -11,10 +11,6 @@ x-backend-prod: &backend-prod
       BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
   environment:
     KVGH_APP_DEBUG: "0"
-  volumes:
-    - ./backend-fastapi/config/settings.compose.yaml:/app/config/settings.yaml:ro
-    - ${ANALYSIS_BASE_ROOT:-/opt/kvgh-rehabilitation-system}/physiotherapy_vghks:/opt/kvgh-rehabilitation-system/physiotherapy_vghks
-    - backend_temp:/data/tmp_videos
 
 services:
   frontend:

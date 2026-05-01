@@ -12,6 +12,10 @@ x-backend-common: &backend-common
       BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
   working_dir: /app
   restart: unless-stopped
+  volumes:
+    - ./backend-fastapi/config/settings.compose.yaml:/app/config/settings.yaml:ro
+    - ${ANALYSIS_BASE_ROOT:-/opt/kvgh-rehabilitation-system}/physiotherapy_vghks:/opt/kvgh-rehabilitation-system/physiotherapy_vghks
+    - backend_temp:/data/tmp_videos
   depends_on:
     postgres:
       condition: service_healthy
