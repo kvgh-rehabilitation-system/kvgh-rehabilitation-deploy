@@ -1,15 +1,6 @@
 name: kvgh-rehabilitation-system
 
-x-backend-common: &backend-common
-  build:
-    context: ./backend-fastapi
-    dockerfile: Dockerfile
-    args:
-      APP_UID: ${APP_UID:-1000}
-      APP_GID: ${APP_GID:-1000}
-      BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
-      BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
-      BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
+x-service-common: &service-common
   working_dir: /app
   restart: unless-stopped
   volumes:
@@ -37,6 +28,18 @@ x-backend-common: &backend-common
     BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
     BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
     BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
+
+x-backend-common: &backend-common
+  <<: *service-common
+  build:
+    context: ./backend-fastapi
+    dockerfile: Dockerfile
+    args:
+      APP_UID: ${APP_UID:-1000}
+      APP_GID: ${APP_GID:-1000}
+      BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
+      BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
+      BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
 
 services:
   postgres:
@@ -67,12 +70,13 @@ services:
     ports:
       - "${RABBITMQ_PORT:-5672}:5672"
     volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "rabbitmq-diagnostics -q ping && rabbitmqctl -q authenticate_user \"$RABBITMQ_DEFAULT_USER\" \"$RABBITMQ_DEFAULT_PASS\" && rabbitmqctl -q list_vhosts | grep -Fx \"$RABBITMQ_DEFAULT_VHOST\"",
+          "rabbitmq-diagnostics -q ping && rabbitmqctl -q authenticate_user \"$${RABBITMQ_DEFAULT_USER}\" \"$${RABBITMQ_DEFAULT_PASS}\" && rabbitmqctl -q list_vhosts | grep -Fx \"$${RABBITMQ_DEFAULT_VHOST}\"",
         ]
       interval: 10s
       timeout: 5s
@@ -95,7 +99,22 @@ services:
       - python -m celery -A app.celery_app.celery_app worker --autoscale=${VIDEO_AUTOSCALE_MAX:-4},${VIDEO_AUTOSCALE_MIN:-2} -Q video_transcode -n video_worker@%h -l info
 
   worker-script:
-    <<: *backend-common
+    <<: *service-common
+    image: kvgh-analysis-worker:local
+    build:
+      context: .
+      dockerfile: backend-fastapi/Dockerfile.analysis-worker
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+        BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
+        BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
+        BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
+    volumes:
+      - ./backend-fastapi/config/settings.compose.yaml:/app/config/settings.yaml:ro
+      - ${ANALYSIS_BASE_ROOT:-/opt/kvgh-rehabilitation-system}/physiotherapy_vghks:/opt/kvgh-rehabilitation-system/physiotherapy_vghks
+      - analysis_worker_venv_mask:/opt/kvgh-rehabilitation-system/physiotherapy_vghks/.venv
+      - backend_temp:/data/tmp_videos
     shm_size: "2gb"
     command:
       - bash
@@ -122,7 +141,13 @@ services:
     gpus: all
 
   worker-annotation:
-    <<: *backend-common
+    <<: *service-common
+    image: kvgh-analysis-worker:local
+    volumes:
+      - ./backend-fastapi/config/settings.compose.yaml:/app/config/settings.yaml:ro
+      - ${ANALYSIS_BASE_ROOT:-/opt/kvgh-rehabilitation-system}/physiotherapy_vghks:/opt/kvgh-rehabilitation-system/physiotherapy_vghks
+      - analysis_worker_venv_mask:/opt/kvgh-rehabilitation-system/physiotherapy_vghks/.venv
+      - backend_temp:/data/tmp_videos
     command:
       - bash
       - -lc
@@ -170,4 +195,5 @@ volumes:
   postgres_data:
   rabbitmq_data:
   backend_temp:
+  analysis_worker_venv_mask:
   frontend_node_modules:

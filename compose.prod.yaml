@@ -42,10 +42,23 @@ services:
     <<: *backend-prod
 
   worker-script:
-    <<: *backend-prod
+    image: kvgh-analysis-worker:release
+    build:
+      context: ${ANALYSIS_WORKER_SOURCE_DIR:-.}
+      dockerfile: backend-fastapi/Dockerfile.analysis-worker
+      args:
+        APP_UID: ${APP_UID:-1000}
+        APP_GID: ${APP_GID:-1000}
+        BACKEND_GIT_SHA: ${BACKEND_GIT_SHA:-local}
+        BACKEND_GIT_REF: ${BACKEND_GIT_REF:-local}
+        BACKEND_BUILD_AT: ${BACKEND_BUILD_AT:-local}
+    environment:
+      KVGH_APP_DEBUG: "0"
 
   worker-annotation:
-    <<: *backend-prod
+    image: kvgh-analysis-worker:release
+    environment:
+      KVGH_APP_DEBUG: "0"
 
   worker-metrics:
     <<: *backend-prod

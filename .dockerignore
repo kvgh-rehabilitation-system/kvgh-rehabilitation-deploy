@@ -1,0 +1,17 @@
+.git
+**/.git
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/__pycache__
+**/*.pyc
+**/.venv
+**/.venvs
+**/logs
+**/storage
+**/reports
+**/.env
+**/.env.*
+physiotherapy_vghks/**
+!physiotherapy_vghks/
+!physiotherapy_vghks/requirements_ubuntu24.04.txt
