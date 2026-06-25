@@ -474,6 +474,7 @@ CREATE TABLE public.rehab_plans (
     id bigint NOT NULL,
     patient_id bigint NOT NULL,
     created_by bigint NOT NULL,
+    diagnosis_record_id bigint,
     created_role character varying(20) NOT NULL,
     status character varying(20) DEFAULT 'active'::character varying NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
@@ -505,6 +506,13 @@ COMMENT ON COLUMN public.rehab_plans.patient_id IS '病人 user_id：對應 user
 --
 
 COMMENT ON COLUMN public.rehab_plans.created_by IS '建立者 user_id：對應 users.id（醫師/治療師）';
+
+
+--
+-- Name: COLUMN rehab_plans.diagnosis_record_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.rehab_plans.diagnosis_record_id IS '來源診斷紀錄 ID：對應 patient_diagnosis_records.id（醫師看診流程建立計畫時用於追溯來源，可為 NULL）';
 
 
 --
